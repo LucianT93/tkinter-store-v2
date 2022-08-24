@@ -1,4 +1,4 @@
-# tkinter-market
+# tkinter-market-v2
 This is a version 2 of the market store using Tkinter GUI
 
 The main script, `store.py`, uses `backend.py` script to connect to a 
