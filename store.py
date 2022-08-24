@@ -121,8 +121,8 @@ class MenuFrame(ttk.Frame):
             self,
             height=5,
         )
-        for index, product in enumerate(create_product_list(Product)):
-            self.listbox.insert(index, f'{product.name},{product.quantity}, {product.price_per_kg}')
+        for index, product in enumerate(create_product_list()):
+            self.listbox.insert(index, f'{product.name},{product.qty}, {product.price}')
 
         if self.menu_type == 'admin':
             self.listbox.bind('<<ListboxSelect>>', self.modify_button_enable)

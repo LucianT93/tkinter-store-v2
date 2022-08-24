@@ -18,6 +18,7 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 def add_elements():
     session.add_all(
         [
@@ -49,25 +50,23 @@ def add_elements():
     )
     session.commit()
 
+
 # add_elements()
 
 
 def get_credentials():
-    credentials = []
-    with open('admin_credentials.txt') as f:
-        for line in f:
-            username, password = line.split(',')
-            credentials.append((username, password.strip()))
-    return credentials
+    credentials_list = []
+    credentials = session.query(Admin).all()
+    for credential in credentials:
+        credentials_list.append((credential.username, credential.password))
+
+    return credentials_list
 
 
-def create_product_list(product):
-    product_list = []
-    with open('products.txt') as f:
-        for line in f:
-            line = line.split(',')
-            product_list.append(product(line[0], line[1], line[2].strip()))
-    return product_list
+def create_product_list():
+    products = session.query(Product).all()
+    return products
+
 
 
 # depending on where it's called (admin or customer), this function receive a different number of arguments
@@ -75,8 +74,11 @@ def create_product_list(product):
 def update_products(*args):
     if args[0] == 'Add':
         if args[1] != '' and args[3] != '' and args[4] != '':
-            with open('products.txt', 'a') as f:
-                f.write('\n' + f'{args[1]}, {float(args[3])}, {float(args[4])}')
+            session.add(Product(
+                name={args[1]},
+                qty={args[3]},
+                price={args[4]}
+            ))
         else:
             tkinter.messagebox.showerror(title="Error", message='Invalid input')
     elif args[2]:
@@ -84,49 +86,37 @@ def update_products(*args):
 
         if args[0] == 'price':  # arg[0] is the 'price' or the 'quantity' in admin frame
             try:
-                updated_product[2] = float(args[1])  # arg[1] is the value from the entry to be used
+                # updated_product[2] = float(args[1])  # arg[1] is the value from the entry to be used
+                update_price = session.query(Product).filter(Product.name == updated_product[0]).first()
+                update_price.price = float(args[1])
+                session.commit()
             except ValueError:
                 tkinter.messagebox.showerror(title="Error", message='Invalid input')
 
         elif args[0] == 'quantity':
             try:
-                updated_product[1] = float(args[1])
+                # updated_product[1] = float(args[1])
+                update_qty = session.query(Product).filter(Product.name == updated_product[0]).first()
+                update_qty.qty = float(args[1])
+                session.commit()
             except ValueError:
                 tkinter.messagebox.showerror(title="Error", message='Invalid input')
         elif args[0] == 'Buy':  # arg[0] is 'Buy' is the customer frame
             try:
-                updated_product[1] = float(updated_product[1])
-                if updated_product[1] >= float(args[1]):
-                    updated_product[1] -= float(args[1])
-                elif updated_product[1] > 0:
-                    tkinter.messagebox.showerror(title="Error", message="Please insert a value less the quantity")
+                update_buy_price = session.query(Product).filter(Product.name == updated_product[0]).first()
+                if update_buy_price.qty >= float(args[1]) > 0:
+                    update_buy_price.qty -= float(args[1])
+                    session.commit()
+                elif update_buy_price.qty > 0:
+                    tkinter.messagebox.showerror(title="Error", message="Please insert a value less the quantity"
+                                                                        "and greater than 0")
                 else:
                     tkinter.messagebox.showerror(title="Error", message="Product unavailable")
             except ValueError:
                 tkinter.messagebox.showerror(title="Error", message='Invalid input')
 
-        product_string = updated_product[0] + ', ' + str(updated_product[1]) + ', ' + str(updated_product[2])
-
-        with open('products.txt', 'r') as f:
-            product_list = []
-            for line in f:
-                product_list.append(line)
-            for index, item in enumerate(product_list):
-                if updated_product[0] in item:
-                    product_list[index] = product_string + '\n'
-        with open('products.txt', 'w') as f:
-            for item in product_list:
-                f.write(item)
-
 
 def delete_product(item):
-    with open('products.txt', 'r') as f:
-        product_list = []
-        for line in f:
-            product_list.append(line)
-    if item in product_list:
-        product_list.remove(item)
-    product_list[-1] = product_list[-1].strip('\n')
-    with open('products.txt', 'w') as f:
-        for elem in product_list:
-            f.write(elem)
+    print(type(item))
+    session.query(Product).filter(Product.name == item.split(',')[0]).delete()
+    session.commit()
