@@ -1,4 +1,55 @@
 import tkinter.messagebox
+from sqlalchemy.orm import sessionmaker
+from model import Base, Admin, Product
+
+from sqlalchemy import create_engine
+
+host = '127.0.0.1'
+username = 'root'
+password = 'lukasporsche911'
+database = 'db_store'
+
+CONNECTION_STRING = f"mysql+pymysql://{username}:{password}@{host}/{database}"
+
+engine = create_engine(CONNECTION_STRING)
+
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+def add_elements():
+    session.add_all(
+        [
+            Admin(
+                username='luciant93',
+                password='pas1234'
+            ),
+            Product(
+                name='Tomatoes',
+                qty=100,
+                price=4.5
+            ),
+            Product(
+                name='Cucumbers',
+                qty=30,
+                price=5
+            ),
+            Product(
+                name='Peppers',
+                qty=45,
+                price=6
+            ),
+            Product(
+                name='Onions',
+                qty=30,
+                price=2.5
+            ),
+        ]
+    )
+    session.commit()
+
+# add_elements()
 
 
 def get_credentials():
