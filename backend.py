@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 
 host = '127.0.0.1'
 username = 'root'
-password = 'lukasporsche911'
+password = ''
 database = 'db_store'
 
 CONNECTION_STRING = f"mysql+pymysql://{username}:{password}@{host}/{database}"
@@ -68,9 +68,8 @@ def create_product_list():
     return products
 
 
-
 # depending on where it's called (admin or customer), this function receive a different number of arguments
-# it updates the products.txt
+# it updates the database
 def update_products(*args):
     if args[0] == 'Add':
         if args[1] != '' and args[3] != '' and args[4] != '':
@@ -86,7 +85,6 @@ def update_products(*args):
 
         if args[0] == 'price':  # arg[0] is the 'price' or the 'quantity' in admin frame
             try:
-                # updated_product[2] = float(args[1])  # arg[1] is the value from the entry to be used
                 update_price = session.query(Product).filter(Product.name == updated_product[0]).first()
                 update_price.price = float(args[1])
                 session.commit()
@@ -95,7 +93,6 @@ def update_products(*args):
 
         elif args[0] == 'quantity':
             try:
-                # updated_product[1] = float(args[1])
                 update_qty = session.query(Product).filter(Product.name == updated_product[0]).first()
                 update_qty.qty = float(args[1])
                 session.commit()

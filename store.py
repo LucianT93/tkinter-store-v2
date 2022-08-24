@@ -32,7 +32,7 @@ class AuthFrame(ttk.LabelFrame):
         )
         self.cancel_button.grid(row=2, column=0, pady=7, padx=10)
 
-        # next button, which calls 'credentials()' to check the credentials stored in admin_credentials.txt
+        # next button, which calls 'credentials()' to check the credentials from the database
         self.next_button = ttk.Button(
             self,
             text='Next',
@@ -199,7 +199,7 @@ class CreateOptionsLabelFrame(ttk.LabelFrame):
         )
         new_value_box.grid(row=3, column=1)
 
-        # SUBMIT BUTTON, calls update_products function which gets the value and modify it in the products.txt
+        # SUBMIT BUTTON, calls update_products function which gets the value and modify it in the database
         # also, calls the function to refresh the listbox with the new values
         submit_button = ttk.Button(
             self,
